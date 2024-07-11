@@ -1,10 +1,12 @@
+"""Python script that will get a list of products that are out of stock in the dev site."""
+
 from cred import url, key, secret
 from woocommerce import API 
 import json
 import csv
 
 
-"""Create a script that that will get list of products that are out of stock in the dev site."""
+
 woo_api = API(
     url=url,
     consumer_key= key,
@@ -19,8 +21,7 @@ per_page = 100
 current_page = 1
 count = 0
 skipped_items =[]
-out_of_stockID = []
-out_of_stockName = []
+out_of_stock = []
 in_stock = []
 while True:
         payload = {
@@ -41,8 +42,7 @@ while True:
             if product['stock_status'] == 'outofstock':
                   OFSname = product['name']
                   OFSid = product['id']
-                  out_of_stockID.append(OFSid)
-                  out_of_stockName.append(OFSname)
+                  out_of_stock.append({'id': product['id'], 'product_name': product['name']})
             else:
                   ISname = product['name'] +',' + product['stock_status']
                   in_stock.append(ISname)
@@ -53,15 +53,19 @@ while True:
 
 with open('ofs.csv', 'w', newline='') as f:
       writer = csv.writer(f)
-      for i in range(len(out_of_stockID)):
-            writer.writerow([f'ID= {out_of_stockID[i]}: {out_of_stockName[i]}'])
+      for i in out_of_stock:
+            row = f'{i['id']}: {i['product_name']}'
+            # f'id: {i['id']}, product_name: {i['product_name']}'
+        # for key, value in i.items():
+            writer.writerow([row])
+         
 
 
       
 
 print(count)
 print(skipped_items)
-print(f'List of out of stock products:{out_of_stockID}, {out_of_stockName}')
+print(f'List of out of stock products:{out_of_stock}')
 print(f'List of in stock products: {in_stock}')
 
 
